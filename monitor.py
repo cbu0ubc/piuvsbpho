@@ -1,6 +1,7 @@
 import psutil
 import time
 import os
+import stat
 
 prev = set(psutil.pids())
 
@@ -20,10 +21,11 @@ while True:
             print(f"  CMD : {' '.join(p.cmdline())}")
             exe_path=p.exe()
             print(f"  PATH: {exe_path}")
-            can_read = os.access(exe_path, os.R_OK)
-            can_write = os.access(exe_path, os.W_OK)
-            can_execute = os.access(exe_path, os.X_OK)
-            print(f"  Rights - Read: {can_read}, Write: {can_write}, Execute: {can_execute}")
+            file_stat = os.stat(exe_path)
+            mode = file_stat.st_mode
+            print(f"  Octal permissions: {oct(stat.S_IMODE(mode))}")
+            is_world_writable = bool(mode & stat.S_IWOTH)
+            print(f"  Is world writable: {is_world_writable}")
         except Exception:
             pass
 
